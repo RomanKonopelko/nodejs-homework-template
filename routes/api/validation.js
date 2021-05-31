@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const mangoose = require("mongoose");
 
 const schemaCreateContact = Joi.object({
   name: Joi.string().alphanum().min(3).max(30).required(),
@@ -9,6 +10,7 @@ const schemaCreateContact = Joi.object({
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required(),
+  favorite: Joi.boolean().optional(),
 });
 
 const schemaUpdateContact = Joi.object({
@@ -21,6 +23,14 @@ const schemaUpdateContact = Joi.object({
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .optional(),
 }).or("name", "phone", "email");
+
+const schemaUpdateContactStatus = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
+const isIdValid = (id) => {
+  return mangoose.isValidObjectId(id);
+};
 
 const toValidate = async (schema, obj, next) => {
   try {
@@ -40,5 +50,17 @@ module.exports = {
   },
   validatedUpdateContact: (req, res, next) => {
     return toValidate(schemaUpdateContact, req.body, next);
+  },
+  validatedUpdateContactStatus: (req, res, next) => {
+    return toValidate(schemaUpdateContactStatus, req.body, next);
+  },
+  validatedContactId: (req, res, next) => {
+    if (!isIdValid(req.params.contactId)) {
+      return next({
+        status: 400,
+        message: "invalid ID",
+      });
+    }
+    next();
   },
 };

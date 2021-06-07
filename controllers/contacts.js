@@ -6,7 +6,8 @@ const { NOT_FOUND_MSG, SUCCESS, DELETED, MISSING_FIELDS, ERROR } = HTTP_MESSAGES
 
 const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await Contacts.getAllContacts();
+    const userId = req.user.id;
+    const contacts = await Contacts.getAllContacts(userId);
     return res.json({ status: SUCCESS, code: OK, payload: { contacts } });
   } catch (error) {
     next(error);
@@ -15,7 +16,8 @@ const getAllContacts = async (req, res, next) => {
 
 const getContactById = async (req, res, next) => {
   try {
-    const contact = await Contacts.getContactById(req.params.contactId);
+    const userId = req.user.id;
+    const contact = await Contacts.getContactById(userId, req.params.contactId);
     if (contact) {
       return res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { contact } });
     }
@@ -27,7 +29,8 @@ const getContactById = async (req, res, next) => {
 
 const addContact = async (req, res, next) => {
   try {
-    const contacts = await Contacts.addContact(req.body);
+    const userId = req.user.id;
+    const contacts = await Contacts.addContact({ ...req.body, owner: userId });
     return res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { contacts } });
   } catch (error) {
     next(error);
@@ -36,7 +39,8 @@ const addContact = async (req, res, next) => {
 
 const removeContact = async (req, res, next) => {
   try {
-    const contact = await Contacts.removeContact(req.params.contactId);
+    const userId = req.user.id;
+    const contact = await Contacts.removeContact(userId, req.params.contactId);
     if (contact) {
       return res.status(OK).json({ status: SUCCESS, code: OK, message: DELETED, payload: { contact } });
     }
@@ -48,7 +52,8 @@ const removeContact = async (req, res, next) => {
 
 const updateContact = async (req, res, next) => {
   try {
-    const contact = await Contacts.updateContact(req.params.contactId, req.body);
+    const userId = req.user.id;
+    const contact = await Contacts.updateContact(userId, req.params.contactId, req.body);
     if (Object.keys(req.body).length === 0)
       res.status(NOT_FOUND).json({ status: ERROR, code: NOT_FOUND, message: MISSING_FIELDS });
     if (contact) res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { contact } });

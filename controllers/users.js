@@ -6,7 +6,7 @@ require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY;
 
 const { ERROR, SUCCESS, EMAIL_IS_USED, INVALID_CREDENTIALS } = HTTP_MESSAGES;
-const { CONFLICT, CREATED, OK, UNAUTHORIZED } = HTTP_CODES;
+const { CONFLICT, CREATED, OK, UNAUTHORIZED, NO_CONTENT } = HTTP_CODES;
 
 const registerUser = async (req, res, next) => {
   try {
@@ -40,8 +40,9 @@ const loginUser = async (req, res, next) => {
 
 const logoutUser = async (req, res, next) => {
   try {
-    const contacts = await Contacts.getAllContacts();
-    return res.json({ status: SUCCESS, code: OK, payload: { contacts } });
+    const id = req.user.id;
+    await User.updateToken(id, null);
+    return res.status(NO_CONTENT).json({});
   } catch (error) {
     next(error);
   }

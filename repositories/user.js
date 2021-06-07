@@ -2,7 +2,7 @@ const User = require("../model/userScheme");
 
 const findById = async (id) => await User.findById(id);
 
-const findByEmail = async (email) => await User.findByEmail(email);
+const findByEmail = async (email) => await User.findOne({ email });
 
 const create = async (body) => {
   const user = new User(body);

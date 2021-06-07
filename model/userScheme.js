@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 const { SUBSCRIPTIONS } = require("../helpers/constants");
-const bkrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const SALT_WORK_FACTOR = 8;
 
 const SubscriptionValues = Object.values(SUBSCRIPTIONS);
@@ -38,8 +38,8 @@ userSchema.methods.isValidPassword = async function (password) {
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    const salt = await bcrypt.getSalt(SALT_WORK_FACTOR);
-    this.password = await bkrypt.hash(this.password, salt);
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+    this.password = await bcrypt.hash(this.password, salt);
   }
   next();
 });

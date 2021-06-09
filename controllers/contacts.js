@@ -7,8 +7,8 @@ const { NOT_FOUND_MSG, SUCCESS, DELETED, MISSING_FIELDS, ERROR } = HTTP_MESSAGES
 const getAllContacts = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const contacts = await Contacts.getAllContacts(userId);
-    return res.json({ status: SUCCESS, code: OK, payload: { contacts } });
+    const { docs: contacts, ...rest } = await Contacts.getAllContacts(userId, req.query);
+    return res.json({ status: SUCCESS, code: OK, payload: { contacts, ...rest } });
   } catch (error) {
     next(error);
   }
@@ -30,7 +30,7 @@ const getContactById = async (req, res, next) => {
 const addContact = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const contacts = await Contacts.addContact({ ...req.body, owner: userId });
+    const contacts = await Contacts.addContact(userId, req.body);
     return res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { contacts } });
   } catch (error) {
     next(error);

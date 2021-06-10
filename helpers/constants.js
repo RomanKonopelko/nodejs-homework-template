@@ -14,6 +14,7 @@ const HTTP_CODES = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   CONFLICT: 409,
+  TOO_MANY_REQUESTS: 429,
 };
 
 const HTTP_MESSAGES = {
@@ -24,6 +25,19 @@ const HTTP_MESSAGES = {
   DELETED: "deleted successfully!",
   MISSING_FIELDS: "Missing requiered fileds",
   EMAIL_IS_USED: "This email is already in use!",
+  TOO_MANY_REQUESTS_MSG: "Too many requests. Please, try again later!",
 };
 
-module.exports = { SUBSCRIPTIONS, HTTP_CODES, HTTP_MESSAGES };
+const APIlimiter = {
+  windowsMs: 15 * 60 * 1000,
+  max: 1000,
+  handler: (req, res, next) => {
+    return res.status(UNAUTHORIZED).json({
+      status: HTTP_MESSAGES.ERROR,
+      code: HTTP_CODES.TOO_MANY_REQUESTS,
+      message: HTTP_MESSAGES.TOO_MANY_REQUESTS_MSG,
+    });
+  },
+};
+
+module.exports = { SUBSCRIPTIONS, HTTP_CODES, HTTP_MESSAGES, APIlimiter };

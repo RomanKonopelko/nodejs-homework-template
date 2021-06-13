@@ -3,7 +3,8 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs/promises");
 const { HTTP_CODES, HTTP_MESSAGES } = require("../helpers/constants");
-const UploadAvatarService = require("../services/local-upload");
+// const UploadAvatarService = require("../services/local-upload");
+const UploadAvatarService = require("../services/cloud-upload");
 
 require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -52,23 +53,6 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
-const uploadAvatar = async (req, res, next) => {
-  try {
-    const id = req.user.id;
-    const uploads = new UploadAvatarService(USER_AVATAR);
-    const avatarUrl = await uploads.saveAvatar({ userId: id, file: req.file });
-    try {
-      await fs.unlink(path.join(process.env.USER_AVATAR, req.user.avatar));
-    } catch (err) {
-      console.log(err.message);
-    }
-    await User.updateAvatar(id, avatarUrl);
-    res.json({ status: SUCCESS, code: OK, payload: { avatarUrl } });
-  } catch (error) {
-    next(error);
-  }
-};
-
 const getCurrentUserData = async (req, res, next) => {
   try {
     const { email, subscription } = req.user;
@@ -77,5 +61,34 @@ const getCurrentUserData = async (req, res, next) => {
     next(err);
   }
 };
+// const uploadAvatar = async (req, res, next) => {
+//   try {
+//     const id = req.user.id;
+//     const uploads = new UploadAvatarService(USER_AVATAR);
+//     const avatarUrl = await uploads.saveAvatar({ userId: id, file: req.file });
+//     try {
+//       await fs.unlink(path.join(process.env.USER_AVATAR, req.user.avatar));
+//     } catch (err) {
+//       console.log(err.message);
+//     }
+//     await User.updateAvatar(id, avatarUrl);
+//     res.json({ status: SUCCESS, code: OK, payload: { avatarUrl } });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
+const uploadAvatar = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+    const uploads = new UploadAvatarService();
+    const { idCloudAvatar, avatarUrl } = await uploads.saveAvatar(req.file.path, req.user.idCloudAvatar);
+
+    await fs.unlink(req.file.path);
+    await User.updateAvatar(id, avatarUrl, idCloudAvatar);
+    res.json({ status: SUCCESS, code: OK, payload: { avatarUrl } });
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = { registerUser, loginUser, logoutUser, getCurrentUserData, uploadAvatar };

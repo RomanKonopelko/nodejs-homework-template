@@ -1,9 +1,13 @@
 const User = require("../repositories/user");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const fs = require("fs/promises");
 const { HTTP_CODES, HTTP_MESSAGES } = require("../helpers/constants");
+const UploadAvatarService = require("../services/local-upload");
 
 require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY;
+const USER_AVATAR = process.env.USER_AVATAR;
 
 const { ERROR, SUCCESS, EMAIL_IS_USED, INVALID_CREDENTIALS } = HTTP_MESSAGES;
 const { CONFLICT, CREATED, OK, UNAUTHORIZED, NO_CONTENT } = HTTP_CODES;
@@ -48,6 +52,23 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
+const uploadAvatar = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+    const uploads = new UploadAvatarService(USER_AVATAR);
+    const avatarUrl = await uploads.saveAvatar({ userId: id, file: req.file });
+    try {
+      await fs.unlink(path.join(process.env.USER_AVATAR, req.user.avatar));
+    } catch (err) {
+      console.log(err.message);
+    }
+    await User.updateAvatar(id, avatarUrl);
+    res.json({ status: SUCCESS, code: OK, payload: { avatarUrl } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getCurrentUserData = async (req, res, next) => {
   try {
     const { email, subscription } = req.user;
@@ -57,4 +78,4 @@ const getCurrentUserData = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, getCurrentUserData };
+module.exports = { registerUser, loginUser, logoutUser, getCurrentUserData, uploadAvatar };

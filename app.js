@@ -15,7 +15,7 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(helmet());
 
-app.use(express.static(path.join(__dirname, PUBLIC_DIR, USER_AVATAR)));
+app.use(express.static(path.join(__dirname, PUBLIC_DIR)));
 
 app.use(logger(formatsLogger));
 

@@ -65,10 +65,10 @@ const getCurrentUserData = async (req, res, next) => {
 const uploadAvatar = async (req, res, next) => {
   try {
     const id = req.user.id;
-    const uploads = new UploadAvatarService(`${PUBLIC_DIR}/${USER_AVATAR}`);
+    const uploads = new UploadAvatarService(USER_AVATAR);
     const avatarUrl = await uploads.saveAvatar({ userId: id, file: req.file });
     try {
-      await fs.unlink(path.join(process.env.USER_AVATAR, req.user.avatar));
+      await fs.unlink(path.join(process.env.PUBLIC_DIR, process.env.USER_AVATAR, req.user.avatar));
     } catch (err) {
       console.log(err.message);
     }

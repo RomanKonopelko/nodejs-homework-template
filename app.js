@@ -7,6 +7,7 @@ const path = require("path");
 const { APIlimiter } = require("./helpers/constants");
 require("dotenv").config();
 const USER_AVATAR = process.env.USER_AVATAR;
+const PUBLIC_DIR = process.env.PUBLIC_DIR;
 
 const app = express();
 
@@ -14,7 +15,7 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(helmet());
 
-app.use(express.static(path.join(__dirname, USER_AVATAR)));
+app.use(express.static(path.join(__dirname, PUBLIC_DIR, USER_AVATAR)));
 
 app.use(logger(formatsLogger));
 

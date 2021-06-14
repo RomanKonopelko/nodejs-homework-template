@@ -21,7 +21,7 @@ const HTTP_MESSAGES = {
   INVALID_CREDENTIALS: "Invalid credentials",
   ERROR: "Error",
   NOT_FOUND_MSG: "Not found",
-  SUCCESS: "Succsess",
+  SUCCESS: "Success",
   DELETED: "deleted successfully!",
   MISSING_FIELDS: "Missing requiered fileds",
   EMAIL_IS_USED: "This email is already in use!",

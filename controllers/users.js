@@ -1,9 +1,11 @@
-const User = require("../repositories/user");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs/promises");
+const User = require("../repositories/user");
 const { HTTP_CODES, HTTP_MESSAGES } = require("../helpers/constants");
-const UploadAvatarService = require("../services/local-upload");
+const UploadAvatarService = require("../services/__mocks__/local-upload");
+const EmailService = require("../services/email");
+const {} = require("../services/email-sender");
 // const UploadAvatarService = require("../services/cloud-upload");
 
 require("dotenv").config();
@@ -20,7 +22,7 @@ const registerUser = async (req, res, next) => {
     if (user) {
       return res.status(CONFLICT).json({ status: ERROR, code: CONFLICT, message: EMAIL_IS_USED });
     }
-    const { id, email, subscription, avatar } = await User.create(req.body);
+    const { id, email, subscription, avatar, verifyToken } = await User.create(req.body);
     return res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { id, email, subscription, avatar } });
   } catch (error) {
     next(error);
@@ -31,7 +33,7 @@ const loginUser = async (req, res, next) => {
   try {
     const user = await User.findByEmail(req.body.email);
     const isValidPassword = await user?.isValidPassword(req.body.password);
-    if (!user || !isValidPassword) {
+    if (!user || !isValidPassword || !user.isVerified) {
       return res.status(UNAUTHORIZED).json({ status: ERROR, code: CONFLICT, message: INVALID_CREDENTIALS });
     }
     const id = user.id;

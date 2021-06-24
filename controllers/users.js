@@ -4,8 +4,8 @@ const fs = require("fs/promises");
 const User = require("../repositories/user");
 const { HTTP_CODES, HTTP_MESSAGES } = require("../helpers/constants");
 const UploadAvatarService = require("../services/__mocks__/local-upload");
-const EmailService = require("../services/email");
-const {} = require("../services/email-sender");
+const EmailService = require("../services/__mocks__/email");
+const { CreateSenderNodemailer, CreateSenderSendGrid } = require("../services/__mocks__/email-sender");
 // const UploadAvatarService = require("../services/cloud-upload");
 
 require("dotenv").config();
@@ -23,6 +23,12 @@ const registerUser = async (req, res, next) => {
       return res.status(CONFLICT).json({ status: ERROR, code: CONFLICT, message: EMAIL_IS_USED });
     }
     const { id, email, subscription, avatar, verifyToken } = await User.create(req.body);
+    try {
+      const emailService = new EmailService(process.env.NODE_ENV, new CreateSenderSendGrid());
+      await emailService.sendVerifyEmail(verifyToken, email, name);
+    } catch (error) {
+      console.log(error.message);
+    }
     return res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { id, email, subscription, avatar } });
   } catch (error) {
     next(error);
@@ -81,6 +87,49 @@ const uploadAvatar = async (req, res, next) => {
   }
 };
 
+const verify = async (req, res, next) => {
+  try {
+    const user = await Users.findByVerifyToken(req.params.token);
+    if (user) {
+      await Users.updateVerifyToken(user.id, true, null);
+      return res.json({ status: SUCCESS, code: OK, data: { message: "Success!" } });
+    }
+    return res.status(HTTP_CODES.BAD_REQUEST).json({
+      status: ERROR,
+      code: HTTP_CODES.BAD_REQUEST,
+      message: "Verification token is not valid",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const repeatEmailVerification = async (req, res, next) => {
+  try {
+    const user = await Users.findByEmail(req.body.email);
+    if (user) {
+      const { name, email, isVerified, verifyToken } = user;
+      if (!isVerified) {
+        const emailService = new EmailService(process.env.NODE_ENV, new CreateSenderSendGrid());
+        await emailService.sendVerifyEmail(verifyToken, email, name);
+        return res.json({ status: SUCCESS, code: OK, data: { message: "Resubmitted successfully!" } });
+      }
+      return res.status(HTTP_CODES.CONFLICT).json({
+        status: ERROR,
+        code: CONFLICT,
+        message: "Email has been verified",
+      });
+    }
+    return res.status(HTTP_CODES.NOT_FOUND).json({
+      status: ERROR,
+      code: HTTP_CODES.NOT_FOUND,
+      message: HTTP_MESSAGES.NOT_FOUND,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // const uploadAvatar = async (req, res, next) => {
 //   try {
 //     const id = req.user.id;
@@ -94,4 +143,12 @@ const uploadAvatar = async (req, res, next) => {
 //     next(error);
 //   }
 // };
-module.exports = { registerUser, loginUser, logoutUser, getCurrentUserData, uploadAvatar };
+module.exports = {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUserData,
+  uploadAvatar,
+  verify,
+  repeatEmailVerification,
+};

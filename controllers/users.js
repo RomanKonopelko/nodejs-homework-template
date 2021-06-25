@@ -24,7 +24,7 @@ const registerUser = async (req, res, next) => {
     }
     const { id, email, subscription, avatar, verifyToken } = await User.create(req.body);
     try {
-      const emailService = new EmailService(process.env.NODE_ENV, new CreateSenderSendGrid());
+      const emailService = new EmailService(process.env.NODE_ENV, new CreateSenderNodemailer());
       await emailService.sendVerifyEmail(verifyToken, email, name);
     } catch (error) {
       console.log(error.message);
@@ -110,7 +110,7 @@ const repeatEmailVerification = async (req, res, next) => {
     if (user) {
       const { name, email, isVerified, verifyToken } = user;
       if (!isVerified) {
-        const emailService = new EmailService(process.env.NODE_ENV, new CreateSenderSendGrid());
+        const emailService = new EmailService(process.env.NODE_ENV, new CreateSenderNodemailer());
         await emailService.sendVerifyEmail(verifyToken, email, name);
         return res.json({ status: SUCCESS, code: OK, data: { message: "Resubmitted successfully!" } });
       }

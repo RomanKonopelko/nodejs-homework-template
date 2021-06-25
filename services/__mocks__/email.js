@@ -23,7 +23,7 @@ class EmailService {
       theme: "default",
       product: {
         name: "RK Studio",
-        link: this.link,
+        link: this.link, //better use ngrok service
       },
     });
     const email = {
@@ -35,7 +35,7 @@ class EmailService {
           button: {
             color: "#22BC66",
             text: "Confirm your account",
-            link: `${this.link}/api/users/verify${verifyToken}`,
+            link: `${this.link}/api/users/verify${verifyToken}`, //change localhost link to ingrok wrapper to avoid Spam warning
           },
         },
         outro: "need help, or have questions? Just reply to this email!",

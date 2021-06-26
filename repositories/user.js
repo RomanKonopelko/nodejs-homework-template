@@ -13,8 +13,16 @@ const updateToken = async (id, token) => {
   return await User.updateOne({ _id: id }, { token });
 };
 
+const updateVerifyToken = async (id, isVerified, verifyToken) => {
+  return await User.updateOne({ _id: id }, { isVerified, verifyToken });
+};
+
 const updateAvatar = async (id, avatar, idCloudAvatar = null) => {
   return await User.updateOne({ _id: id }, { avatar, idCloudAvatar });
 };
 
-module.exports = { findByEmail, findById, create, updateToken, updateAvatar };
+const findByVerifyToken = async (verifyToken) => {
+  return await User.findOne({ verifyToken });
+};
+
+module.exports = { findByEmail, findById, create, updateToken, updateAvatar, findByVerifyToken, updateVerifyToken };

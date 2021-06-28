@@ -7,7 +7,8 @@
     "start:dev": "cross-env NODE_ENV=development nodemon ./bin/server.js",
     "lint": "eslint **/*.js",
     "lint:fix": "eslint --fix **/*.js",
-    "test": "cross-env NODE_ENV=test jest --no-cache --verbose --detectOpenHandles --watch-all"
+    "test": "cross-env NODE_ENV=test jest --no-cache --verbose --detectOpenHandles --watch-all",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.4.5",

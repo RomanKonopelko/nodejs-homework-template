@@ -1,5 +1,4 @@
 const { updateContact } = require("../controllers/contacts");
-const { update } = require("../model/contactsScheme");
 const Contact = require("../repositories/contact");
 
 jest.mock("../repositories/contact");

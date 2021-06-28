@@ -23,7 +23,7 @@ const HTTP_MESSAGES = {
   NOT_FOUND_MSG: "Not found",
   SUCCESS: "Success",
   DELETED: "deleted successfully!",
-  MISSING_FIELDS: "Missing requiered fileds",
+  MISSING_FIELDS: "Missing required fields",
   EMAIL_IS_USED: "This email is already in use!",
   TOO_MANY_REQUESTS_MSG: "Too many requests. Please, try again later!",
 };

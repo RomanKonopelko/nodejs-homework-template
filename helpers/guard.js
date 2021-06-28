@@ -2,8 +2,8 @@ const passport = require("passport");
 require("../config/passport");
 const { HTTP_CODES, HTTP_MESSAGES } = require("../helpers/constants");
 
-const { UNAUTHORIZED, ERROR } = HTTP_CODES;
-const { INVALID_CREDENTIALS } = HTTP_MESSAGES;
+const { UNAUTHORIZED } = HTTP_CODES;
+const { INVALID_CREDENTIALS, ERROR } = HTTP_MESSAGES;
 
 const guard = (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user) => {

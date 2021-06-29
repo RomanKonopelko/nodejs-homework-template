@@ -54,9 +54,12 @@ const updateContact = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const contact = await Contacts.updateContact(userId, req.params.contactId, req.body);
+
     if (Object.keys(req.body).length === 0)
-      res.status(NOT_FOUND).json({ status: ERROR, code: NOT_FOUND, message: MISSING_FIELDS });
-    if (contact) res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { contact } });
+      return res.status(NOT_FOUND).json({ status: ERROR, code: NOT_FOUND, message: MISSING_FIELDS });
+
+    if (contact) return res.status(CREATED).json({ status: SUCCESS, code: CREATED, payload: { contact } });
+
     return res.json({ status: ERROR, code: NOT_FOUND, message: NOT_FOUND_MSG });
   } catch (error) {
     next(error);

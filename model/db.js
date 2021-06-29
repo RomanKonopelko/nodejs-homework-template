@@ -1,6 +1,11 @@
 const Mongoose = require("mongoose");
 require("dotenv").config();
-const uriDb = process.env.URI_DB;
+let uriDb = null;
+if (process.env.NODE_ENV === "test") {
+  uriDb = process.env.URI_DB_TEST;
+} else {
+  uriDb = process.env.URI_DB;
+}
 
 const db = Mongoose.connect(uriDb, {
   useNewPArser: true,
